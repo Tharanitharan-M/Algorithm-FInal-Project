@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Decrypted Data</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+}
+
+strong {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+    </style>
+
+</head>
+<body>
+<div class="container">
+    <h1>Decrypted User Data</h1>
+    <ul>
+        <li>
+            <strong>Password:</strong>
+            <span>{{ user.password }}</span>
+        </li>
+        <li>
+            <strong>Name:</strong>
+            <span>{{ user.name }}</span>
+        </li>
+        <li>
+            <strong>Age:</strong>
+            <span>{{ user.age }}</span>
+        </li>
+        <li>
+            <strong>Gender:</strong>
+            <span>{{ user.gender }}</span>
+        </li>
+        <li>
+            <strong>Address:</strong>
+            <span>{{ user.address1 }}, {{ user.address2 }}, {{ user.city }}, {{ user.state }} - {{ user.pincode }}</span>
+        </li>
+        <li>
+            <strong>Latitude:</strong>
+            <span>{{ user.lat }}</span>
+        </li>
+        <li>
+            <strong>Longitude:</strong>
+            <span>{{ user.lng }}</span>
+        </li>
+        <li>
+            <strong>Health Condition:</strong>
+            <span>{{ user.health_condition }}</span>
+        </li>
+        <li>
+            <strong>Insurance Plan:</strong>
+            <span>{{ user.insurance_plan }}</span>
+        </li>
+    </ul>
+</div>
+</body>
+</html>
