@@ -5,7 +5,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Doctors</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .doctors-list {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .doctor-box {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #eaf2ff;
+            border: 1px solid #c3d7ff;
+            border-radius: 3px;
+        }
+
+        .rating {
+            color: #4CAF50;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 
 <body>
@@ -24,11 +85,14 @@
         <div class="doctors-list">
             {% if doctors %}
                 <h2>Available Doctors</h2>
-                <ul>
-                    {% for doctor in doctors %}
-                        <li>{{ doctor[1] }} - {{ doctor[2] }} - Availability: {{ doctor[3] }}</li>
-                    {% endfor %}
-                </ul>
+                {% for doctor in doctors %}
+                    <div class="doctor-box">
+                        <p><strong>Name:</strong> {{ doctor[1] }}</p>
+                        <p><strong>Specialization:</strong> {{ doctor[2] }}</p>
+                        <p><strong>Availability:</strong> {{ doctor[3] }}</p>
+                        <p class="rating"><strong>Ratings:</strong> {{ doctor[7] }}</p>
+                    </div>
+                {% endfor %}
             {% else %}
                 <p>No doctors found.</p>
             {% endif %}
@@ -39,4 +103,5 @@
         </form>
     </div>
 </body>
+
 </html>
