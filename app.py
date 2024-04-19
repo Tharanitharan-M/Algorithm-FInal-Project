@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 from flask_mysqldb import MySQL
 from cryptography.fernet import Fernet, InvalidToken
 from geopy.geocoders import Nominatim
+from math import radians, sin, cos, sqrt, atan2
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -156,7 +157,6 @@ def dashboard():
         return redirect(url_for('search_doctors'))
     return render_template('dashboard.html')
 
-
 @app.route('/search_doctors', methods=['GET', 'POST'])
 def search_doctors():
     if 'username' not in session:
@@ -165,8 +165,14 @@ def search_doctors():
     if request.method == 'POST':
         doctor_type = request.form.get('doctor_type')
 
-    return render_template('search_doctors.html')
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM doctors WHERE Specialization = %s", (doctor_type,))
+        doctors = cur.fetchall()
+        cur.close()
 
+        return render_template('search_doctors.html', doctors=doctors)
+
+    return render_template('search_doctors.html')
 
 @app.route('/decrypt_data')
 def decrypt_data():

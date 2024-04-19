@@ -1,85 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Doctors</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f2f2f2;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        select,
-        button {
-            display: block;
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
     <div class="container">
         <h1>Search Doctors</h1>
-        <form action="/search_doctors" method="POST">
+        <form action="{{ url_for('search_doctors') }}" method="POST">
             <label for="doctor_type">Select Doctor Type:</label>
-            <select id="doctor_type" name="doctor_type">
-                <option value="all">All Doctors</option>
-                <option value="pediatrician">Pediatrician</option>
-                <option value="cardiologist">Cardiologist</option>
-                <option value="dermatologist">Dermatologist</option>
-                <!-- Add more options as needed -->
+            <select name="doctor_type" id="doctor_type">
+                <option value="Cardiology">Cardiology</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Psychiatry">Psychiatry</option>
+                <option value="Orthopedics">Orthopedics</option>
             </select>
             <button type="submit">Search</button>
         </form>
-        <button type="button" onclick="signOut()">Sign Out</button>
+        <div class="doctors-list">
+            {% if doctors %}
+                <h2>Available Doctors</h2>
+                <ul>
+                    {% for doctor in doctors %}
+                        <li>{{ doctor[1] }} - {{ doctor[2] }} - Availability: {{ doctor[3] }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No doctors found.</p>
+            {% endif %}
+        </div>
+        <form action="{{ url_for('sign_out') }}" method="POST">
+            <input type="hidden" name="sign_out" value="true">
+            <button type="submit">Sign Out</button>
+        </form>
     </div>
-
-    <script>
-        function signOut() {
-            fetch('/sign_out', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ sign_out: true })
-            }).then(response => {
-                if (response.ok) {
-                    // Redirect to the sign-in page or any other page
-                    window.location.href = '/login';  // Adjust the URL as needed
-                } else {
-                    console.error('Failed to sign out');
-                }
-            }).catch(error => {
-                console.error('Error signing out:', error);
-            });
-        }
-    </script>
 </body>
 </html>
