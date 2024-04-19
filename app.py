@@ -157,6 +157,9 @@ def dashboard():
         return redirect(url_for('search_doctors'))
     return render_template('dashboard.html')
 
+from math import radians, sin, cos, sqrt, atan2
+from flask import jsonify
+
 @app.route('/search_doctors', methods=['GET', 'POST'])
 def search_doctors():
     if 'username' not in session:
@@ -165,14 +168,61 @@ def search_doctors():
     if request.method == 'POST':
         doctor_type = request.form.get('doctor_type')
 
+        # Get patient's latitude and longitude from MySQL
         cur = mysql.connection.cursor()
-        cur.execute("SELECT * FROM doctors WHERE Specialization = %s", (doctor_type,))
-        doctors = cur.fetchall()
+        cur.execute("SELECT lat, lng FROM users WHERE username = %s", (session['username'],))
+        patient = cur.fetchone()
         cur.close()
 
-        return render_template('search_doctors.html', doctors=doctors)
+        if patient:
+            # Get all doctors of the selected type from MySQL
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT name, specialization, availability, ratings, Latitude, Longitude FROM doctors WHERE specialization = %s",
+                        (doctor_type,))
+            doctors = cur.fetchall()
+            cur.close()
+
+            if doctors:
+                # Calculate distance between patient and each doctor using Haversine formula
+                ranked_doctors = []
+                for doctor in doctors:
+                    doctor_name, specialization, availability, ratings, lat, lng = doctor
+                    distance = calculate_distance(patient[0], patient[1], lat, lng)
+                    ranked_doctors.append({
+                        'name': doctor_name,
+                        'specialization': specialization,
+                        'availability': availability,
+                        'distance': distance,
+                        'ratings': ratings
+                    })
+
+                # Rank doctors based on distance
+                ranked_doctors.sort(key=lambda x: x['distance'])
+                # print(ranked_doctors)
+                # Display the ranked list of doctors
+                return render_template('search_doctors.html', doctors=ranked_doctors)
+            else:
+                return "No doctors found for the selected type."
+        else:
+            return "Patient not found."
 
     return render_template('search_doctors.html')
+
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    # Convert latitude and longitude from degrees to radians
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+
+    # Haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    radius = 3959  # Radius of the Earth in miles
+    distance = radius * c
+
+    return round(distance,2)
+
 
 @app.route('/decrypt_data')
 def decrypt_data():
@@ -220,4 +270,4 @@ def sign_out():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

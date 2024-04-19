@@ -87,10 +87,11 @@
                 <h2>Available Doctors</h2>
                 {% for doctor in doctors %}
                     <div class="doctor-box">
-                        <p><strong>Name:</strong> {{ doctor[1] }}</p>
-                        <p><strong>Specialization:</strong> {{ doctor[2] }}</p>
-                        <p><strong>Availability:</strong> {{ doctor[3] }}</p>
-                        <p class="rating"><strong>Ratings:</strong> {{ doctor[7] }}</p>
+                        <p><strong>Name:</strong> {{ doctor['name'] }}</p>
+                        <p><strong>Specialization:</strong> {{ doctor['specialization'] }}</p>
+                        <p><strong>Availability:</strong> {{ doctor['availability'] }}</p>
+                        <p class="rating"><strong>Ratings:</strong> {{ doctor['ratings'] }}</p>
+                        <p><strong>Distance:</strong> {{ doctor['distance'] }} Miles</p>
                     </div>
                 {% endfor %}
             {% else %}
