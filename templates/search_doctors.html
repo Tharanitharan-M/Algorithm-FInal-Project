@@ -92,16 +92,16 @@
                         <p><strong>Availability:</strong> {{ doctor['availability'] }}</p>
                         <p class="rating"><strong>Ratings:</strong> {{ doctor['ratings'] }}</p>
                         <p><strong>Distance:</strong> {{ doctor['distance'] }} Miles</p>
+                        <form action="{{ url_for('navigation', doctor_name=doctor['name']) }}" method="GET">
+            <input type="hidden" name="doctor_name" value="{{ doctor['name'] }}">
+            <button type="submit">Navigation</button>
+        </form>
                     </div>
                 {% endfor %}
             {% else %}
                 <p>No doctors found.</p>
             {% endif %}
         </div>
-        <form action="{{ url_for('sign_out') }}" method="POST">
-            <input type="hidden" name="sign_out" value="true">
-            <button type="submit">Sign Out</button>
-        </form>
     </div>
 </body>
 

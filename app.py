@@ -1,8 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+import time
+
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 from flask_mysqldb import MySQL
 from cryptography.fernet import Fernet, InvalidToken
 from geopy.geocoders import Nominatim
 from math import radians, sin, cos, sqrt, atan2
+import pandas as pd
+import geopandas
+import networkx as nx
+import osmnx as ox
+import numpy as np
+import traceback
+import logging
+
 
 app = Flask(__name__)
 app.secret_key = 'secret_key'
@@ -268,6 +278,84 @@ def sign_out():
     else:
         return 'Invalid request', 400
 
+def get_nearest_node(g, lat, log):
+    try:
+        node = ox.nearest_nodes(g, log, lat)
+        return node
+    except Exception as e:
+        logging.error(traceback.format_exc())
+
+
+def find_routes(g, source, target, weight='travel_time'):
+    routes = []
+    travel_time = []
+    try:
+        route = nx.dijkstra_path(g, source=source, target=target, weight=weight)
+        routes.append(route)
+        travel_time.append(nx.shortest_path_length(g, source, target, weight=weight))
+    except Exception as e:
+        travel_time.append(np.inf)
+        routes.append(np.nan)
+        logging.warning("No route found for " + str(target))
+    return routes, travel_time
+
+
+def plot_one_route(g, route, filepath, saveFig=False):
+    fig, ax = ox.plot_graph_route(g, route, route_linewidth=6, node_size=2, save=saveFig, filepath=filepath)
+
+@app.route('/navigation/<doctor_name>', methods=['GET'])
+def navigation(doctor_name):
+    # Your navigation logic here
+    # Example code for path calculation and image generation
+    place = "Portland, Maine"
+    filepath = "./portland_map.graphml"
+    city_graph = ox.load_graphml(filepath)
+
+    # Get patient's latitude and longitude from MySQL
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT lat, lng FROM users WHERE username = %s", (session['username'],))
+    from decimal import Decimal
+
+    # Assuming you have fetched the data using cur.fetchone()
+    lat_decimal, lng_decimal = cur.fetchone()
+
+    # Convert Decimal objects to floats
+    lat_float = float(lat_decimal)
+    lng_float = float(lng_decimal)
+
+    # Now you have lat_float and lng_float as floats
+    source_loc = (lat_float, lng_float)
+    cur.close()
+
+    # Get doctor's latitude and longitude from MySQL
+    cur = mysql.connection.cursor()
+    cur.execute(
+        "SELECT Latitude, Longitude FROM doctors WHERE name = %s",
+        (doctor_name,))
+    # Assuming you have fetched the data using cur.fetchone()
+    lat_decimal, lng_decimal = cur.fetchone()
+
+    # Convert Decimal objects to floats
+    lat_float = float(lat_decimal)
+    lng_float = float(lng_decimal)
+
+    # Now you have lat_float and lng_float as floats
+    target_loc = (lat_float, lng_float)
+    cur.close()
+    print(target_loc, source_loc,sep="\n")
+    source = get_nearest_node(city_graph, source_loc[0], source_loc[1])  # Patient location
+    target = get_nearest_node(city_graph, target_loc[0], target_loc[1])  # Doctor's location
+
+    routes, travel_time = find_routes(city_graph, source, target)
+    plot_one_route(city_graph, routes[np.argmin(travel_time)], saveFig=True, filepath="static/route.png")
+
+    timestamp = int(time.time())  # Get current timestamp
+    return render_template('navigation.html', doctor_name=doctor_name, timestamp=timestamp)
+
+
+@app.route('/get_image')
+def get_image():
+    return send_file("static/route.png", mimetype='image/png')
 
 if __name__ == '__main__':
     app.run(debug=True)
