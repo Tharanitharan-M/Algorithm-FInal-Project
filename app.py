@@ -5,8 +5,6 @@ from flask_mysqldb import MySQL
 from cryptography.fernet import Fernet, InvalidToken
 from geopy.geocoders import Nominatim
 from math import radians, sin, cos, sqrt, atan2
-import pandas as pd
-import geopandas
 import networkx as nx
 import osmnx as ox
 import numpy as np
@@ -166,9 +164,6 @@ def dashboard():
 
         return redirect(url_for('search_doctors'))
     return render_template('dashboard.html')
-
-from math import radians, sin, cos, sqrt, atan2
-from flask import jsonify
 
 @app.route('/search_doctors', methods=['GET', 'POST'])
 def search_doctors():
