@@ -296,7 +296,7 @@ def find_routes(g, source, target, weight='travel_time'):
 
 
 def plot_one_route(g, route, filepath, saveFig=False):
-    fig, ax = ox.plot_graph_route(g, route, route_linewidth=6, node_size=2, save=saveFig, filepath=filepath)
+    fig, ax = ox.plot_graph_route(g, route, route_linewidth=6, node_size=2, save=saveFig, filepath=filepath, close=False, show=False)
 
 @app.route('/navigation/<doctor_name>', methods=['GET'])
 def navigation(doctor_name):
@@ -337,7 +337,6 @@ def navigation(doctor_name):
     # Now you have lat_float and lng_float as floats
     target_loc = (lat_float, lng_float)
     cur.close()
-    print(target_loc, source_loc,sep="\n")
     source = get_nearest_node(city_graph, source_loc[0], source_loc[1])  # Patient location
     target = get_nearest_node(city_graph, target_loc[0], target_loc[1])  # Doctor's location
 
